@@ -52,14 +52,20 @@
     }
 
     //TODO: Calculate position for visible cells
+    NSMutableArray <UICollectionViewLayoutAttributes *> *attributesCollection = [@[] mutableCopy];
+    for(NSUInteger i=0; i < lastVisibleItem; i++) {
+        UICollectionViewLayoutAttributes * attributes = [self layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0]];
+        [attributesCollection addObject:attributes];
+    }
 
-    return @[];
+    return attributesCollection;
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewLayoutAttributes *attributes = [[[self class] layoutAttributesClass] layoutAttributesForCellWithIndexPath:indexPath];
 
     //TODO: Calculate position for item at given index path
+    attributes.frame = CGRectIntegral(CGRectMake(self.rightLeftMargin + indexPath.row * self.interItemSpace + indexPath.row * self.itemSize.width , self.topBottomMargin, self.itemSize.width, self.itemSize.height));
 
     return attributes;
 }
@@ -84,17 +90,40 @@
     return targetContentOffset;
 }
 
+- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset {
+    return [self targetContentOffsetForProposedContentOffset:proposedContentOffset withScrollingVelocity:CGPointZero];
+}
+
+
 #pragma mark - Helpers
 
 //Tip: this method is called when collection view bounds change - collection view asks us whether we'd like to adjust
 // content offset to adjust for new bounds
 - (UICollectionViewLayoutAttributes *)layoutAttributesForUserFingerMovingWithVelocity:(CGPoint)velocity proposedContentOffset:(CGPoint)offset {
-    UICollectionViewLayoutAttributes *layoutAttributesForItemToCenterOn = nil;
+    __block UICollectionViewLayoutAttributes *layoutAttributesForItemToCenterOn = nil;
     CGRect nextVisibleBounds = [self collectionView].bounds;
     nextVisibleBounds.origin = offset;
 
+    CGFloat centerLine = nextVisibleBounds.size.width / 2 + nextVisibleBounds.origin.x;
+
     //TODO: Calculate which layout attributes should be selected as next centered layout attributes.
     //Tips: Use nextVisibleBounds calculated above! Make sure you also use velocity for determining direction (left, right or just dragging - all cases are important!)
+
+    NSArray <UICollectionViewLayoutAttributes *> *layoutAttributes = [self layoutAttributesForElementsInRect:nextVisibleBounds];
+
+    __block NSNumber *attributesIndexWithMinimalDistanceToNextVisibleBoundsCenter;
+    __block NSNumber *minimalDistance;
+    [layoutAttributes enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *attributes, NSUInteger idx, BOOL *stop) {
+        CGFloat distance = fabsf(attributes.center.x - centerLine);
+
+        if(!minimalDistance || distance < minimalDistance.floatValue) {
+            minimalDistance = @(distance);
+            attributesIndexWithMinimalDistanceToNextVisibleBoundsCenter = @(idx);
+        }
+    }];
+
+    if(attributesIndexWithMinimalDistanceToNextVisibleBoundsCenter)
+        layoutAttributesForItemToCenterOn = layoutAttributes[attributesIndexWithMinimalDistanceToNextVisibleBoundsCenter.unsignedIntegerValue];
 
     return layoutAttributesForItemToCenterOn;
 }

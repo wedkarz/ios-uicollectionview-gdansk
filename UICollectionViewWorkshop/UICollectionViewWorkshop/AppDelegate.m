@@ -8,6 +8,7 @@
 #import "PadRootTabBarController.h"
 #import "ConfigurationFactory.h"
 #import "Configurator.h"
+#import "CarouselViewController.h"
 
 @implementation AppDelegate
 
@@ -30,7 +31,7 @@
         rootViewController = [PhoneRootTabBarController new];
     }
     else {
-        rootViewController = [PadRootTabBarController new];
+        rootViewController = [CarouselViewController new];
     }
 
     self.window.rootViewController = rootViewController;
