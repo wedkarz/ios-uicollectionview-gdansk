@@ -7,9 +7,9 @@
 #import "SpeakerItem.h"
 #import "SpeakerCollectionViewCell.h"
 
-@interface SpeakersDataSource ()
+@interface SpeakersDataSource () <UICollectionViewDataSource>
 @property(nonatomic, copy, readwrite) NSString *cellIdentifier;
-@property(nonatomic, readwrite) NSArray *speakerItems;
+@property(nonatomic, readwrite) NSArray <SpeakerItem *>*speakerItems;
 @property(nonatomic, readwrite) Class cellClass;
 @end
 
@@ -38,6 +38,8 @@
     // TODO 2. To bind collection view with data source, you have to do the following:
     // - Register cell class for identifier. (HINT: they are provided in `-init`)
     // - Set itself as a collection view data source. (HINT: Remember to add protocol in class header)
+    [collectionView registerClass:self.cellClass forCellWithReuseIdentifier:self.cellIdentifier];
+    collectionView.dataSource = self;
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -45,6 +47,18 @@
 // TODO 3. There are 2 required methods of UICollectionViewDataSource you need to implement
 // - `-collectionView:numberOfItemsInSection:`
 // - `-collectionView:cellForItemAtIndexPath:` (HINT: The cell that is returned must be retrieved from a call to `-dequeueReusableCellWithReuseIdentifier:forIndexPath:`)
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.speakerItems.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    SpeakerCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:self.cellIdentifier forIndexPath:indexPath];
+    SpeakerItem *speakerItem = self.speakerItems[(NSUInteger) indexPath.row];
+    cell.imageView.image = speakerItem.image;
+    return cell;
+}
+
 
 #pragma mark - Helpers
 

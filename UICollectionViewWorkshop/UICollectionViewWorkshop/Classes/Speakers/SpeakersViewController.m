@@ -6,6 +6,10 @@
 #import "SpeakersViewController.h"
 #import "SpeakersDataSource.h"
 
+@interface SpeakersViewController () <UICollectionViewDelegateFlowLayout>
+@property(nonatomic, strong) UICollectionView *collectionView;
+@end
+
 @implementation SpeakersViewController
 
 /*
@@ -42,6 +46,15 @@
     // TODO 1. You should create a UICollectionView with UICollectionViewFlowLayout here.
     // This is a place where you can set collection view's delegate and data source.
 
+    UICollectionViewFlowLayout *flowLayout = [UICollectionViewFlowLayout new];
+    flowLayout.sectionInset = UIEdgeInsetsMake(2, 5, 2, 5);
+    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:flowLayout];
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    [_dataSource bindWithCollectionView:self.collectionView];
+
+    self.collectionView.delegate = self;
+
+    [self.view addSubview:self.collectionView];
     // HINT 1: Remember about special delegate protocol for UICollectionViewFlowLayout.
     // HINT 2: For setting data source please see `-bindWithCollectionView:` method in `SpeakersDataSource` class (which should be invoked here).
 }
@@ -53,5 +66,10 @@
 
 // TODO 4. You should override `-collectionView:layout:sizeForItemAtIndexPath:` method to provide cell size.
 // HINT: Remember about special delegate protocol for UICollectionViewFlowLayout.
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(self.view.frame.size.width / 2 - 10,self.view.frame.size.width / 2 - 10);
+}
+
 
 @end
